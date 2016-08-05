@@ -1,6 +1,5 @@
 package io.github.marktony.reader.data;
 
-import java.util.List;
 
 /**
  * Created by Lizhaotailang on 2016/8/4.
@@ -8,68 +7,28 @@ import java.util.List;
 
 public class QsbkArticle {
 
-    public String format;
+    private String user_login;
 
-    public String image;
+    private long create_at;
 
-    public int published_at;
+    private String content;
 
-    public String tag;
-
-    public static class user {
-
-        public int avatar_updated_at;
-
-        public int uid;
-
-        public int last_visited_at;
-
-        public int created_at;
-
-        public String state;
-
-        public String last_device;
-
-        public String role;
-
-        public String login;
-
-        public int id;
-
-        public String icon;
-
+    public QsbkArticle(String user_login, long create_at, String content) {
+        this.user_login = user_login;
+        this.create_at = create_at;
+        this.content = content;
     }
 
-    public static class image_size{
-
-        public List<Integer> s;
-
-        public List<Integer> m;
-
+    public long getCreate_at() {
+        return create_at;
     }
 
-    public int id;
-
-    public static class votes {
-
-        public int down;
-
-        public int up;
-
+    public String getContent() {
+        return content;
     }
 
-    public int created_at;
-
-    public String content;
-
-    public String state;
-
-    public int comments_count;
-
-    public boolean allow_comment;
-
-    public int share_count;
-
-    public String type;
+    public String getUser_login() {
+        return user_login;
+    }
 
 }

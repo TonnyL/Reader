@@ -1,6 +1,6 @@
-package io.github.marktony.reader.home;
+package io.github.marktony.reader.joke;
 
-import java.util.List;
+import java.util.ArrayList;
 
 import io.github.marktony.reader.BasePresenter;
 import io.github.marktony.reader.BaseView;
@@ -13,11 +13,11 @@ import io.github.marktony.reader.data.QsbkArticle;
 public interface QsbkContract {
 
     interface View extends BaseView<Presenter> {
-        void showArticle(List<QsbkArticle> articleList);
+        void showArticle(ArrayList<QsbkArticle> articleList);
     }
 
     interface Presenter extends BasePresenter {
-        void loadArticle();
+        void loadArticle(Boolean forceRefresh);
     }
 
 }
