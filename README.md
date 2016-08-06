@@ -1,7 +1,7 @@
 参考Google [Android Architecture Blueprints [beta]](https://github.com/googlesamples/android-architecture) MVP架构实现的Android App[段子](https://github.com/marktony/Reader),目前的源有 **糗事百科**，**煎蛋** 和 **内涵段子**
 
 运行效果如下
-![Screenshot](https://github.com/marktony/Reader/blob/master/screenshots/Screenshot.png)
+![Screenshot](https://github.com/marktony/Reader/blob/master/screenshot.png)
 
     Copyright 2016 Li Zhaotailang
 
