@@ -1,13 +1,16 @@
 package io.github.marktony.reader.joke;
 
+import android.content.ActivityNotFoundException;
+import android.content.ClipData;
+import android.content.ClipboardManager;
 import android.content.Context;
+import android.content.Intent;
+import android.widget.Toast;
 
 import com.android.volley.Request;
-import com.android.volley.RequestQueue;
 import com.android.volley.Response;
 import com.android.volley.VolleyError;
 import com.android.volley.toolbox.JsonObjectRequest;
-import com.android.volley.toolbox.Volley;
 
 import org.json.JSONArray;
 import org.json.JSONException;
@@ -15,8 +18,11 @@ import org.json.JSONObject;
 
 import java.util.ArrayList;
 
+import io.github.marktony.reader.app.VolleySingleton;
 import io.github.marktony.reader.data.QsbkArticle;
 import io.github.marktony.reader.model.JokeDataRequest;
+
+import static android.content.Context.CLIPBOARD_SERVICE;
 
 /**
  * Created by Lizhaotailang on 2016/8/4.
@@ -28,26 +34,48 @@ public class QsbkPresenter implements QsbkContract.Presenter,JokeDataRequest {
     private Context context;
     private ArrayList<QsbkArticle> list =new ArrayList<>();
 
-    private RequestQueue queue;
-
     public QsbkPresenter(Context context, QsbkContract.View view){
         this.view = view;
-        this.context = context.getApplicationContext();
-        queue = Volley.newRequestQueue(context);
+        this.context = context;
     }
 
     @Override
     public void loadArticle(Boolean forceRefresh) {
+        view.loading();
         if (forceRefresh){
             list.clear();
         }
         getData(0);
+    }
+
+    @Override
+    public void loadMore() {
 
     }
 
     @Override
-    public QsbkArticle getElement(int position) {
-        return list.get(position);
+    public void loadDone() {
+        view.loaded();
+    }
+
+    @Override
+    public void shareTo(int position) {
+        try {
+            Intent i = new Intent().setAction(Intent.ACTION_SEND).setType("text/plain");
+            String text = list.get(position).getContent();
+            i.putExtra(Intent.EXTRA_TEXT, text);
+            context.startActivity(Intent.createChooser(i,"分享至"));
+        } catch (ActivityNotFoundException ex){
+            Toast.makeText(context, "没有可以分享的App", Toast.LENGTH_SHORT).show();
+        }
+    }
+
+    @Override
+    public void copyToClipboard(int position) {
+        ClipboardManager manager = (ClipboardManager) context.getSystemService(CLIPBOARD_SERVICE);
+        ClipData clipData = ClipData.newPlainText("text", list.get(position).getContent());
+        manager.setPrimaryClip(clipData);
+        Toast.makeText(context, "内容已复制到剪贴板", Toast.LENGTH_SHORT).show();
     }
 
     @Override
@@ -57,8 +85,8 @@ public class QsbkPresenter implements QsbkContract.Presenter,JokeDataRequest {
 
     @Override
     public void finish() {
-        if (queue != null){
-            queue.cancelAll("QSBK");
+        if (VolleySingleton.getVolleySingleton(context).getRequestQueue() != null){
+            VolleySingleton.getVolleySingleton(context).getRequestQueue().cancelAll("QSBK");
         }
     }
 
@@ -90,6 +118,7 @@ public class QsbkPresenter implements QsbkContract.Presenter,JokeDataRequest {
                     }
 
                     view.showArticle(list);
+                    loadDone();
                 } catch (JSONException e) {
                     e.printStackTrace();
                 }
@@ -102,7 +131,7 @@ public class QsbkPresenter implements QsbkContract.Presenter,JokeDataRequest {
         });
 
         request.setTag("QSBK");
-        queue.add(request);
+        VolleySingleton.getVolleySingleton(context).addToRequestQueue(request);
     }
 
 }

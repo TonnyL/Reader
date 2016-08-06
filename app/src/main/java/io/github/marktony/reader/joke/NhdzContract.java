@@ -13,7 +13,13 @@ import io.github.marktony.reader.data.NhdzArticle;
 public interface NhdzContract {
 
     interface View extends BaseView<NhdzContract.Presenter> {
+
         void showArticle(ArrayList<NhdzArticle> articleList);
+
+        void loading();
+
+        void loaded();
+
     }
 
     interface Presenter extends BasePresenter {
@@ -22,7 +28,12 @@ public interface NhdzContract {
 
         void loadMore();
 
-        NhdzArticle getElement(int position);
+        void loadDone();
+
+        void shareTo(int position);
+
+        void copyToClipboard(int position);
+
     }
 
 }

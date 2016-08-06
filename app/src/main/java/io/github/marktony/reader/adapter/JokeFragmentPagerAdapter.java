@@ -2,7 +2,7 @@ package io.github.marktony.reader.adapter;
 
 import android.support.v4.app.Fragment;
 import android.support.v4.app.FragmentManager;
-import android.support.v4.app.FragmentStatePagerAdapter;
+import android.support.v4.app.FragmentPagerAdapter;
 
 import io.github.marktony.reader.joke.JiandanFragment;
 import io.github.marktony.reader.joke.NhdzFragment;
@@ -12,11 +12,8 @@ import io.github.marktony.reader.joke.QsbkFragment;
  * Created by Lizhaotailang on 2016/8/5.
  */
 
-/**
- *  pay attention to FragmentStatePagerAdapter
- *  it is not FragmentPagerAdapter
- */
-public class JokeFragmentPagerAdapter extends FragmentStatePagerAdapter {
+
+public class JokeFragmentPagerAdapter extends FragmentPagerAdapter {
 
     private String[] titles = {"糗事百科", "煎蛋", "内涵段子" };
 

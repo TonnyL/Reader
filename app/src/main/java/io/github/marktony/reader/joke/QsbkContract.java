@@ -13,13 +13,27 @@ import io.github.marktony.reader.data.QsbkArticle;
 public interface QsbkContract {
 
     interface View extends BaseView<Presenter> {
+
         void showArticle(ArrayList<QsbkArticle> articleList);
+
+        void loading();
+
+        void loaded();
+
     }
 
     interface Presenter extends BasePresenter {
+
         void loadArticle(Boolean forceRefresh);
 
-        QsbkArticle getElement(int position);
+        void loadMore();
+
+        void loadDone();
+
+        void shareTo(int position);
+
+        void copyToClipboard(int position);
+
     }
 
 }

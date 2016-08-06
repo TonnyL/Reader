@@ -21,9 +21,9 @@ import io.github.marktony.reader.interfaze.OnRecyclerViewLongClickListener;
 
 public class JiandanArticleAdapter extends RecyclerView.Adapter<JiandanArticleAdapter.JiandanViewHolder> {
 
-    private Context context;
+    private final Context context;
     private LayoutInflater inflater;
-    private List<JiandanArticle> list = new ArrayList<>();
+    private final List<JiandanArticle> list;
 
     private OnRecyclerViewClickListener listener;
     private OnRecyclerViewLongClickListener longClickListener;

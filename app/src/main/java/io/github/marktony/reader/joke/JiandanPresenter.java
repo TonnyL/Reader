@@ -1,13 +1,16 @@
 package io.github.marktony.reader.joke;
 
+import android.content.ActivityNotFoundException;
+import android.content.ClipData;
+import android.content.ClipboardManager;
 import android.content.Context;
+import android.content.Intent;
+import android.widget.Toast;
 
 import com.android.volley.Request;
-import com.android.volley.RequestQueue;
 import com.android.volley.Response;
 import com.android.volley.VolleyError;
 import com.android.volley.toolbox.JsonObjectRequest;
-import com.android.volley.toolbox.Volley;
 
 import org.json.JSONArray;
 import org.json.JSONException;
@@ -15,25 +18,28 @@ import org.json.JSONObject;
 
 import java.util.ArrayList;
 
+import io.github.marktony.reader.app.VolleySingleton;
 import io.github.marktony.reader.data.JiandanArticle;
-import io.github.marktony.reader.model.JokeDataRequest;
+
+import static android.content.Context.CLIPBOARD_SERVICE;
 
 /**
  * Created by Lizhaotailang on 2016/8/5.
  */
 
-public class JiandanPresenter implements JiandanContract.Presenter, JokeDataRequest {
+public class JiandanPresenter implements JiandanContract.Presenter {
 
     private JiandanContract.View view;
-    private RequestQueue queue;
     private ArrayList<JiandanArticle> jiandanArticles = new ArrayList<>();
+    private Context context;
 
     public JiandanPresenter(Context context, JiandanContract.View view){
         this.view = view;
-        queue = Volley.newRequestQueue(context.getApplicationContext());
+        this.context = context;
     }
 
     public void loadArticle(Boolean forceRefresh) {
+        view.loading();
         if (forceRefresh){
             jiandanArticles.clear();
         }
@@ -46,8 +52,28 @@ public class JiandanPresenter implements JiandanContract.Presenter, JokeDataRequ
     }
 
     @Override
-    public JiandanArticle getElement(int position) {
-        return jiandanArticles.get(position);
+    public void loadDone() {
+        view.loaded();
+    }
+
+    @Override
+    public void shareTo(int position) {
+        try {
+            Intent i = new Intent().setAction(Intent.ACTION_SEND).setType("text/plain");
+            String text = jiandanArticles.get(position).getComment_content();
+            i.putExtra(Intent.EXTRA_TEXT, text);
+            context.startActivity(Intent.createChooser(i,"分享至"));
+        } catch (ActivityNotFoundException ex){
+            Toast.makeText(context, "没有可以分享的App", Toast.LENGTH_SHORT).show();
+        }
+    }
+
+    @Override
+    public void copyToClipboard(int position) {
+        ClipboardManager manager = (ClipboardManager) context.getSystemService(CLIPBOARD_SERVICE);
+        ClipData clipData = ClipData.newPlainText("text", jiandanArticles.get(position).getComment_content());
+        manager.setPrimaryClip(clipData);
+        Toast.makeText(context, "内容已复制到剪贴板", Toast.LENGTH_SHORT).show();
     }
 
     @Override
@@ -57,12 +83,11 @@ public class JiandanPresenter implements JiandanContract.Presenter, JokeDataRequ
 
     @Override
     public void finish() {
-        if (queue != null){
-            queue.cancelAll("JD");
+        if (VolleySingleton.getVolleySingleton(context).getRequestQueue() != null){
+            VolleySingleton.getVolleySingleton(context).getRequestQueue().cancelAll("JD");
         }
     }
 
-    @Override
     public void getData(int offset) {
         JsonObjectRequest request = new JsonObjectRequest(Request.Method.GET,
                 "http://jandan.net/?oxwlxojflwblxbsapi=jandan.get_duan_comments&page=?oxwlxojflwblxbsapi=jandan.get_duan_comments&page=" + offset,
@@ -84,6 +109,9 @@ public class JiandanPresenter implements JiandanContract.Presenter, JokeDataRequ
                             }
 
                             view.showArticle(jiandanArticles);
+
+                            loadDone();
+
                         } catch (JSONException e) {
                             e.printStackTrace();
                         }
@@ -96,7 +124,7 @@ public class JiandanPresenter implements JiandanContract.Presenter, JokeDataRequ
         });
 
         request.setTag("JD");
-        queue.add(request);
+        VolleySingleton.getVolleySingleton(context).addToRequestQueue(request);
     }
 
 }

@@ -13,7 +13,15 @@ import io.github.marktony.reader.data.JiandanArticle;
 public interface JiandanContract {
 
     interface View extends BaseView<Presenter> {
+
         void showArticle(ArrayList<JiandanArticle> articleList);
+
+        void loading();
+
+        void loaded();
+
+        void initViews(android.view.View view);
+
     }
 
     interface Presenter extends BasePresenter {
@@ -22,7 +30,12 @@ public interface JiandanContract {
 
         void loadMore();
 
-        JiandanArticle getElement(int position);
+        void loadDone();
+
+        void shareTo(int position);
+
+        void copyToClipboard(int position);
+
     }
 
 }

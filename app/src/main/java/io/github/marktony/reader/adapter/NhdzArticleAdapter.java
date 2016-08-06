@@ -23,9 +23,10 @@ import io.github.marktony.reader.util.DateTimeHelper;
 
 public class NhdzArticleAdapter extends RecyclerView.Adapter<NhdzArticleAdapter.NhdzViewHolder> {
 
-    private Context context;
+    private final Context context;
     private LayoutInflater inflater;
-    private List<NhdzArticle> list;
+    private final List<NhdzArticle> list;
+
     private OnRecyclerViewClickListener listener;
     private OnRecyclerViewLongClickListener longClickListener;
 

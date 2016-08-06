@@ -1,9 +1,5 @@
 package io.github.marktony.reader.joke;
 
-import android.content.ActivityNotFoundException;
-import android.content.ClipData;
-import android.content.ClipboardManager;
-import android.content.Intent;
 import android.os.Bundle;
 import android.support.annotation.Nullable;
 import android.support.v4.app.Fragment;
@@ -13,7 +9,6 @@ import android.support.v7.widget.RecyclerView;
 import android.view.LayoutInflater;
 import android.view.View;
 import android.view.ViewGroup;
-import android.widget.Toast;
 
 import java.util.ArrayList;
 
@@ -23,7 +18,6 @@ import io.github.marktony.reader.data.JiandanArticle;
 import io.github.marktony.reader.interfaze.OnRecyclerViewClickListener;
 import io.github.marktony.reader.interfaze.OnRecyclerViewLongClickListener;
 
-import static android.content.Context.CLIPBOARD_SERVICE;
 
 /**
  * Created by Lizhaotailang on 2016/8/5.
@@ -48,7 +42,6 @@ public class JiandanFragment extends Fragment implements JiandanContract.View{
     public void onCreate(@Nullable Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
         presenter = new JiandanPresenter(getActivity(),this);
-        setPresenter(presenter);
     }
 
     @Nullable
@@ -57,17 +50,16 @@ public class JiandanFragment extends Fragment implements JiandanContract.View{
 
         View view = inflater.inflate(R.layout.joke_list_fragment,container,false);
 
-        rvArticles = (RecyclerView) view.findViewById(R.id.qsbk_rv);
-        rvArticles.setLayoutManager(new LinearLayoutManager(getActivity()));
-        refreshLayout = (SwipeRefreshLayout) view.findViewById(R.id.refresh);
+        initViews(view);
+
+        setPresenter(presenter);
+
         refreshLayout.setOnRefreshListener(new SwipeRefreshLayout.OnRefreshListener() {
             @Override
             public void onRefresh() {
                 presenter.loadArticle(true);
                 adapter.notifyDataSetChanged();
-                if (refreshLayout.isRefreshing()){
-                    refreshLayout.setRefreshing(false);
-                }
+                loaded();
             }
         });
 
@@ -117,15 +109,7 @@ public class JiandanFragment extends Fragment implements JiandanContract.View{
         adapter.setItemClickListener(new OnRecyclerViewClickListener() {
             @Override
             public void OnClick(View v, int position) {
-                try {
-                    Intent i = new Intent().setAction(Intent.ACTION_SEND).setType("text/plain");
-                    String text = presenter.getElement(position).getComment_content();
-                    i.putExtra(Intent.EXTRA_TEXT, text);
-                    startActivity(Intent.createChooser(i,"分享至"));
-                } catch (ActivityNotFoundException ex){
-                    Toast.makeText(getActivity(), "没有可以分享的App", Toast.LENGTH_SHORT).show();
-                }
-
+                presenter.shareTo(position);
             }
 
         });
@@ -133,13 +117,39 @@ public class JiandanFragment extends Fragment implements JiandanContract.View{
         adapter.setItemLongClickListener(new OnRecyclerViewLongClickListener() {
             @Override
             public void OnLongClick(View view, int position) {
-                ClipboardManager manager = (ClipboardManager) getActivity().getSystemService(CLIPBOARD_SERVICE);
-                ClipData clipData = ClipData.newPlainText("text", presenter.getElement(position).getComment_content());
-                manager.setPrimaryClip(clipData);
-                Toast.makeText(getActivity(), "内容已复制到剪贴板", Toast.LENGTH_SHORT).show();
+                presenter.copyToClipboard(position);
             }
         });
 
+    }
+
+    @Override
+    public void loading() {
+        refreshLayout.post(new Runnable() {
+            @Override
+            public void run() {
+                refreshLayout.setRefreshing(true);
+            }
+        });
+    }
+
+    @Override
+    public void loaded() {
+        if (refreshLayout.isRefreshing()){
+            refreshLayout.post(new Runnable() {
+                @Override
+                public void run() {
+                    refreshLayout.setRefreshing(false);
+                }
+            });
+        }
+    }
+
+    @Override
+    public void initViews(View view) {
+        rvArticles = (RecyclerView) view.findViewById(R.id.qsbk_rv);
+        rvArticles.setLayoutManager(new LinearLayoutManager(getActivity()));
+        refreshLayout = (SwipeRefreshLayout) view.findViewById(R.id.refresh);
     }
 
     @Override
@@ -158,4 +168,5 @@ public class JiandanFragment extends Fragment implements JiandanContract.View{
         super.onStop();
         presenter.finish();
     }
+
 }

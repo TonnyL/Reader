@@ -33,10 +33,12 @@ public class JokePageFragment extends Fragment {
 
         View view = inflater.inflate(R.layout.fragment_main, container, false);
         ViewPager viewPager = (ViewPager) view.findViewById(R.id.view_pager);
+        viewPager.setOffscreenPageLimit(3);
         viewPager.setAdapter(new JokeFragmentPagerAdapter(getChildFragmentManager()));
         TabLayout tabLayout = (TabLayout) view.findViewById(R.id.tab);
         tabLayout.setupWithViewPager(viewPager);
 
         return view;
     }
+
 }

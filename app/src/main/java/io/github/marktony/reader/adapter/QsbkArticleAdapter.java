@@ -23,9 +23,9 @@ import io.github.marktony.reader.util.DateTimeHelper;
 
 public class QsbkArticleAdapter extends RecyclerView.Adapter<QsbkArticleAdapter.QsbkArticleViewHolder> {
 
-    private Context context;
+    private final Context context;
     private LayoutInflater inflater;
-    private List<QsbkArticle> list = new ArrayList<QsbkArticle>();
+    private final List<QsbkArticle> list;
     private OnRecyclerViewClickListener listener;
     private OnRecyclerViewLongClickListener longClickListener;
 
