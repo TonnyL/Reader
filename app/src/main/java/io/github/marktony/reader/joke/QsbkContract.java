@@ -18,6 +18,8 @@ public interface QsbkContract {
 
     interface Presenter extends BasePresenter {
         void loadArticle(Boolean forceRefresh);
+
+        QsbkArticle getElement(int position);
     }
 
 }

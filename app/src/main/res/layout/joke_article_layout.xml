@@ -27,14 +27,15 @@
                 android:id="@+id/author"
                 android:textStyle="bold"
                 android:textSize="16sp"
-                android:text="author"/>
+                android:maxLines="1"
+                android:ellipsize="end"/>
 
             <TextView
-                android:layout_width="wrap_content"
+                android:layout_width="0dp"
                 android:layout_height="wrap_content"
                 android:id="@+id/time"
                 android:layout_marginLeft="16dp"
-                android:text="publish time"/>
+                android:layout_weight="1"/>
 
         </LinearLayout>
 
@@ -43,8 +44,7 @@
             android:layout_height="wrap_content"
             android:id="@+id/content"
             android:layout_marginTop="8dp"
-            android:lineSpacingExtra="4dp"
-            android:text="this is content "/>
+            android:lineSpacingExtra="4dp" />
 
     </LinearLayout>
 

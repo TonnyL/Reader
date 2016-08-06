@@ -53,6 +53,11 @@ public class NhdzPresenter implements NhdzContract.Presenter,JokeDataRequest {
     }
 
     @Override
+    public NhdzArticle getElement(int position) {
+        return list.get(position);
+    }
+
+    @Override
     public void start() {
 
     }

@@ -46,6 +46,11 @@ public class QsbkPresenter implements QsbkContract.Presenter,JokeDataRequest {
     }
 
     @Override
+    public QsbkArticle getElement(int position) {
+        return list.get(position);
+    }
+
+    @Override
     public void start() {
 
     }

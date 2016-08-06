@@ -12,6 +12,8 @@ import java.util.List;
 
 import io.github.marktony.reader.R;
 import io.github.marktony.reader.data.JiandanArticle;
+import io.github.marktony.reader.interfaze.OnRecyclerViewClickListener;
+import io.github.marktony.reader.interfaze.OnRecyclerViewLongClickListener;
 
 /**
  * Created by Lizhaotailang on 2016/8/5.
@@ -23,6 +25,9 @@ public class JiandanArticleAdapter extends RecyclerView.Adapter<JiandanArticleAd
     private LayoutInflater inflater;
     private List<JiandanArticle> list = new ArrayList<>();
 
+    private OnRecyclerViewClickListener listener;
+    private OnRecyclerViewLongClickListener longClickListener;
+
     public JiandanArticleAdapter(Context context, ArrayList<JiandanArticle> list) {
         this.context = context;
         this.list = list;
@@ -31,7 +36,7 @@ public class JiandanArticleAdapter extends RecyclerView.Adapter<JiandanArticleAd
 
     @Override
     public JiandanViewHolder onCreateViewHolder(ViewGroup parent, int viewType) {
-        return new JiandanViewHolder(inflater.inflate(R.layout.joke_article_layout,parent,false));
+        return new JiandanViewHolder(inflater.inflate(R.layout.joke_article_layout,parent,false), listener, longClickListener);
     }
 
     @Override
@@ -48,18 +53,50 @@ public class JiandanArticleAdapter extends RecyclerView.Adapter<JiandanArticleAd
         return list.size();
     }
 
-    public class JiandanViewHolder extends RecyclerView.ViewHolder {
+    public void setItemClickListener(OnRecyclerViewClickListener listener) {
+        this.listener = listener;
+    }
+
+    public void setItemLongClickListener(OnRecyclerViewLongClickListener longClickListener) {
+        this.longClickListener = longClickListener;
+    }
+
+    public class JiandanViewHolder extends RecyclerView.ViewHolder implements View.OnClickListener,View.OnLongClickListener {
 
         TextView tvAuthor;
         TextView tvTime;
         TextView tvContent;
 
-        public JiandanViewHolder(View itemView) {
+        OnRecyclerViewClickListener listener;
+        OnRecyclerViewLongClickListener longClickListener;
+
+        public JiandanViewHolder(View itemView, OnRecyclerViewClickListener listener, OnRecyclerViewLongClickListener longClickListener) {
             super(itemView);
 
             tvAuthor = (TextView) itemView.findViewById(R.id.author);
             tvTime = (TextView) itemView.findViewById(R.id.time);
             tvContent = (TextView) itemView.findViewById(R.id.content);
+
+            this.listener = listener;
+            itemView.setOnClickListener(this);
+            this.longClickListener = longClickListener;
+            itemView.setOnLongClickListener(this);
+
+        }
+
+        @Override
+        public void onClick(View view) {
+            if (listener != null){
+                listener.OnClick(view, getLayoutPosition());
+            }
+        }
+
+        @Override
+        public boolean onLongClick(View view) {
+            if (longClickListener != null){
+                longClickListener.OnLongClick(view, getLayoutPosition());
+            }
+            return true;
         }
     }
 }

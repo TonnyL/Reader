@@ -25,14 +25,12 @@ import io.github.marktony.reader.model.JokeDataRequest;
 public class JiandanPresenter implements JiandanContract.Presenter, JokeDataRequest {
 
     private JiandanContract.View view;
-    private Context context;
     private RequestQueue queue;
     private ArrayList<JiandanArticle> jiandanArticles = new ArrayList<>();
 
     public JiandanPresenter(Context context, JiandanContract.View view){
         this.view = view;
-        this.context = context.getApplicationContext();
-        queue = Volley.newRequestQueue(context);
+        queue = Volley.newRequestQueue(context.getApplicationContext());
     }
 
     public void loadArticle(Boolean forceRefresh) {
@@ -45,6 +43,11 @@ public class JiandanPresenter implements JiandanContract.Presenter, JokeDataRequ
     @Override
     public void loadMore() {
         getData((jiandanArticles.size() / 25) + 1);
+    }
+
+    @Override
+    public JiandanArticle getElement(int position) {
+        return jiandanArticles.get(position);
     }
 
     @Override
@@ -95,4 +98,5 @@ public class JiandanPresenter implements JiandanContract.Presenter, JokeDataRequ
         request.setTag("JD");
         queue.add(request);
     }
+
 }

@@ -21,6 +21,8 @@ public interface NhdzContract {
         void loadArticle(Boolean forceRefresh);
 
         void loadMore();
+
+        NhdzArticle getElement(int position);
     }
 
 }

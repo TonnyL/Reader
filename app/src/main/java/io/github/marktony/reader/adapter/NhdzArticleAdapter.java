@@ -13,6 +13,8 @@ import java.util.List;
 
 import io.github.marktony.reader.R;
 import io.github.marktony.reader.data.NhdzArticle;
+import io.github.marktony.reader.interfaze.OnRecyclerViewClickListener;
+import io.github.marktony.reader.interfaze.OnRecyclerViewLongClickListener;
 import io.github.marktony.reader.util.DateTimeHelper;
 
 /**
@@ -24,6 +26,8 @@ public class NhdzArticleAdapter extends RecyclerView.Adapter<NhdzArticleAdapter.
     private Context context;
     private LayoutInflater inflater;
     private List<NhdzArticle> list;
+    private OnRecyclerViewClickListener listener;
+    private OnRecyclerViewLongClickListener longClickListener;
 
     public NhdzArticleAdapter(Context context, ArrayList<NhdzArticle> list) {
         this.context = context;
@@ -33,7 +37,7 @@ public class NhdzArticleAdapter extends RecyclerView.Adapter<NhdzArticleAdapter.
 
     @Override
     public NhdzViewHolder onCreateViewHolder(ViewGroup parent, int viewType) {
-        return new NhdzViewHolder(inflater.inflate(R.layout.joke_article_layout, parent, false));
+        return new NhdzViewHolder(inflater.inflate(R.layout.joke_article_layout, parent, false), listener, longClickListener);
     }
 
     @Override
@@ -49,17 +53,52 @@ public class NhdzArticleAdapter extends RecyclerView.Adapter<NhdzArticleAdapter.
         return list.size();
     }
 
-    public class NhdzViewHolder extends RecyclerView.ViewHolder {
+    public void setOnItemClickListener(OnRecyclerViewClickListener listener){
+        this.listener = listener;
+    }
+
+    public void setOnItemLongClickListener(OnRecyclerViewLongClickListener longClickListener){
+        this.longClickListener = longClickListener;
+    }
+
+    public class NhdzViewHolder extends RecyclerView.ViewHolder implements View.OnClickListener, View.OnLongClickListener {
 
         TextView tvAuthor;
         TextView tvTime;
         TextView tvContent;
+        OnRecyclerViewClickListener listener;
+        OnRecyclerViewLongClickListener longClickListener;
 
-        public NhdzViewHolder(View itemView) {
+        public NhdzViewHolder(
+                View itemView,
+                OnRecyclerViewClickListener listener,
+                OnRecyclerViewLongClickListener longClickListener) {
+
             super(itemView);
             tvAuthor = (TextView) itemView.findViewById(R.id.author);
             tvTime = (TextView) itemView.findViewById(R.id.time);
             tvContent = (TextView) itemView.findViewById(R.id.content);
+
+            this.listener = listener;
+            itemView.setOnClickListener(this);
+            this.longClickListener = longClickListener;
+            itemView.setOnLongClickListener(this);
+
+        }
+
+        @Override
+        public void onClick(View view) {
+            if (listener != null){
+                listener.OnClick(view, getLayoutPosition());
+            }
+        }
+
+        @Override
+        public boolean onLongClick(View view) {
+            if (longClickListener != null){
+                longClickListener.OnLongClick(view, getLayoutPosition());
+            }
+            return true;
         }
     }
 

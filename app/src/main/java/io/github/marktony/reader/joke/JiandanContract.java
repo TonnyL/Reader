@@ -21,6 +21,8 @@ public interface JiandanContract {
         void loadArticle(Boolean forceRefresh);
 
         void loadMore();
+
+        JiandanArticle getElement(int position);
     }
 
 }
