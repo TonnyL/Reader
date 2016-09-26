@@ -61,8 +61,8 @@ public class Qiushibaike {
         private long published_at;
         private String tag;
         private String image_size;
-        private String id;
-        private String created_at;
+        private long id;
+        private long created_at;
         private String content;
         private String state;
         private int comments_count;
@@ -113,19 +113,19 @@ public class Qiushibaike {
             this.image_size = image_size;
         }
 
-        public String getId() {
+        public long getId() {
             return id;
         }
 
-        public void setId(String id) {
+        public void setId(long id) {
             this.id = id;
         }
 
-        public String getCreated_at() {
+        public long getCreated_at() {
             return created_at;
         }
 
-        public void setCreated_at(String created_at) {
+        public void setCreated_at(long created_at) {
             this.created_at = created_at;
         }
 
@@ -194,7 +194,7 @@ public class Qiushibaike {
         }
     }
 
-    private class User {
+    public class User {
 
         private long avatar_updated_at;
         private int uid;

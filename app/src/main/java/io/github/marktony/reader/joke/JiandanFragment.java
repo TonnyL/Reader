@@ -160,7 +160,7 @@ public class JiandanFragment extends Fragment
                 .setAction("重试", new View.OnClickListener() {
                     @Override
                     public void onClick(View view) {
-                        presenter.requestArticles(true);
+                        presenter.requestArticles(false);
                     }
                 }).show();
     }

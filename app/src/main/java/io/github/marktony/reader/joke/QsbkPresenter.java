@@ -7,20 +7,14 @@ import android.content.Context;
 import android.content.Intent;
 import android.widget.Toast;
 
-import com.android.volley.Request;
-import com.android.volley.Response;
 import com.android.volley.VolleyError;
-import com.android.volley.toolbox.JsonObjectRequest;
-
-import org.json.JSONArray;
-import org.json.JSONException;
-import org.json.JSONObject;
+import com.google.gson.Gson;
 
 import java.util.ArrayList;
 
-import io.github.marktony.reader.app.VolleySingleton;
 import io.github.marktony.reader.data.OnStringListener;
-import io.github.marktony.reader.data.QsbkArticle;
+import io.github.marktony.reader.data.Qiushibaike;
+import io.github.marktony.reader.data.StringModelImpl;
 
 import static android.content.Context.CLIPBOARD_SERVICE;
 
@@ -32,30 +26,27 @@ public class QsbkPresenter implements QsbkContract.Presenter, OnStringListener {
 
     private QsbkContract.View view;
     private Context context;
-    private ArrayList<QsbkArticle> list =new ArrayList<>();
+    private ArrayList<Qiushibaike.Item> list =new ArrayList<>();
+    private StringModelImpl model;
 
     public QsbkPresenter(Context context, QsbkContract.View view){
         this.view = view;
         this.context = context;
+        model = new StringModelImpl(context);
     }
 
     @Override
     public void loadArticle(Boolean forceRefresh) {
-        view.loading();
+        view.startLoading();
         if (forceRefresh){
             list.clear();
         }
-        // getData(0);
+        model.load("http://m2.qiushibaike.com/article/list/text?page=" + (list.size() / 30 + 1), this);
     }
 
     @Override
     public void loadMore() {
-
-    }
-
-    @Override
-    public void loadDone() {
-        view.loaded();
+        model.load("http://m2.qiushibaike.com/article/list/text?page=" + (list.size() / 30 + 1), this);
     }
 
     @Override
@@ -85,62 +76,24 @@ public class QsbkPresenter implements QsbkContract.Presenter, OnStringListener {
 
     @Override
     public void finish() {
-        if (VolleySingleton.getVolleySingleton(context).getRequestQueue() != null){
-            VolleySingleton.getVolleySingleton(context).getRequestQueue().cancelAll("QSBK");
-        }
+
     }
-
-    /*@Override
-    public void getData(int offset) {
-        JsonObjectRequest request = new JsonObjectRequest(Request.Method.GET, "http://m2.qiushibaike.com/article/list/text", new Response.Listener<JSONObject>() {
-            @Override
-            public void onResponse(JSONObject jsonObject) {
-
-                try {
-                    if (jsonObject.getInt("err") == 0){
-                        JSONArray array = jsonObject.getJSONArray("items");
-                        for (int i = 0; i < array.length(); i++){
-                            JSONObject object = array.getJSONObject(i);
-
-                            String login;
-                            if (object.isNull("user")){
-                                login = "匿名用户";
-                            } else {
-                                login = object.getJSONObject("user").getString("login");
-                            }
-
-                            QsbkArticle article = new QsbkArticle(
-                                    login,
-                                    object.getLong("created_at"),
-                                    object.getString("content"));
-                            list.add(article);
-                        }
-                    }
-
-                    view.showArticle(list);
-                    loadDone();
-                } catch (JSONException e) {
-                    e.printStackTrace();
-                }
-            }
-        }, new Response.ErrorListener() {
-            @Override
-            public void onErrorResponse(VolleyError volleyError) {
-
-            }
-        });
-
-        request.setTag("QSBK");
-        VolleySingleton.getVolleySingleton(context).addToRequestQueue(request);
-    }*/
 
     @Override
     public void onSuccess(String result) {
-
+        Gson gson = new Gson();
+        Qiushibaike q = gson.fromJson(result, Qiushibaike.class);
+        for (Qiushibaike.Item item : q.getItems()) {
+            list.add(item);
+        }
+        view.showResult(list);
+        view.stopLoading();
     }
 
     @Override
     public void onError(VolleyError error) {
-
+        view.showLoadError();
+        view.stopLoading();
     }
+
 }

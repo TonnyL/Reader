@@ -12,7 +12,7 @@ import java.util.Date;
 import java.util.List;
 
 import io.github.marktony.reader.R;
-import io.github.marktony.reader.data.QsbkArticle;
+import io.github.marktony.reader.data.Qiushibaike;
 import io.github.marktony.reader.interfaze.OnRecyclerViewClickListener;
 import io.github.marktony.reader.interfaze.OnRecyclerViewLongClickListener;
 import io.github.marktony.reader.util.DateTimeHelper;
@@ -25,11 +25,11 @@ public class QsbkArticleAdapter extends RecyclerView.Adapter<QsbkArticleAdapter.
 
     private final Context context;
     private LayoutInflater inflater;
-    private final List<QsbkArticle> list;
+    private final List<Qiushibaike.Item> list;
     private OnRecyclerViewClickListener listener;
     private OnRecyclerViewLongClickListener longClickListener;
 
-    public QsbkArticleAdapter (Context context, ArrayList<QsbkArticle> list){
+    public QsbkArticleAdapter (Context context, ArrayList<Qiushibaike.Item> list){
         this.context = context;
         this.list = list;
         this.inflater = LayoutInflater.from(context);
@@ -42,9 +42,13 @@ public class QsbkArticleAdapter extends RecyclerView.Adapter<QsbkArticleAdapter.
 
     @Override
     public void onBindViewHolder(QsbkArticleViewHolder holder, int position) {
-        QsbkArticle qsbkArticle = list.get(position);
-        holder.tvAuthor.setText(qsbkArticle.getUser_login());
-        holder.tvTime.setText(DateTimeHelper.getInterval(new Date(qsbkArticle.getCreate_at() * 1000)));
+        Qiushibaike.Item qsbkArticle = list.get(position);
+        if (qsbkArticle.getUser() == null) {
+            holder.tvAuthor.setText("匿名用户");
+        } else {
+            holder.tvAuthor.setText(qsbkArticle.getUser().getLogin());
+        }
+        holder.tvTime.setText(DateTimeHelper.getInterval(new Date(qsbkArticle.getCreated_at() * 1000)));
         holder.tvContent.setText(qsbkArticle.getContent());
     }
 

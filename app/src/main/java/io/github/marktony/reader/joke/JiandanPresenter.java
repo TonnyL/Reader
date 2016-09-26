@@ -12,7 +12,6 @@ import com.google.gson.Gson;
 
 import java.util.ArrayList;
 
-import io.github.marktony.reader.app.VolleySingleton;
 import io.github.marktony.reader.data.Jiandan;
 import io.github.marktony.reader.data.OnStringListener;
 import io.github.marktony.reader.data.StringModelImpl;
@@ -77,9 +76,7 @@ public class JiandanPresenter implements JiandanContract.Presenter, OnStringList
 
     @Override
     public void finish() {
-        if (VolleySingleton.getVolleySingleton(context).getRequestQueue() != null){
-            VolleySingleton.getVolleySingleton(context).getRequestQueue().cancelAll("JD");
-        }
+
     }
 
     @Override
@@ -96,6 +93,7 @@ public class JiandanPresenter implements JiandanContract.Presenter, OnStringList
     @Override
     public void onError(VolleyError error) {
         view.showLoadError();
+        view.stopLoading();
     }
 
 }
