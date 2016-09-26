@@ -2,6 +2,7 @@ package io.github.marktony.reader.joke;
 
 import android.os.Bundle;
 import android.support.annotation.Nullable;
+import android.support.design.widget.Snackbar;
 import android.support.v4.app.Fragment;
 import android.support.v4.widget.SwipeRefreshLayout;
 import android.support.v7.widget.LinearLayoutManager;
@@ -14,7 +15,7 @@ import java.util.ArrayList;
 
 import io.github.marktony.reader.R;
 import io.github.marktony.reader.adapter.JiandanArticleAdapter;
-import io.github.marktony.reader.data.JiandanArticle;
+import io.github.marktony.reader.data.Jiandan;
 import io.github.marktony.reader.interfaze.OnRecyclerViewClickListener;
 import io.github.marktony.reader.interfaze.OnRecyclerViewLongClickListener;
 
@@ -23,11 +24,12 @@ import io.github.marktony.reader.interfaze.OnRecyclerViewLongClickListener;
  * Created by Lizhaotailang on 2016/8/5.
  */
 
-public class JiandanFragment extends Fragment implements JiandanContract.View{
+public class JiandanFragment extends Fragment
+        implements JiandanContract.View{
 
     private JiandanContract.Presenter presenter;
     private JiandanArticleAdapter adapter;
-    private RecyclerView rvArticles;
+    private RecyclerView recyclerView;
     private SwipeRefreshLayout refreshLayout;
 
     public JiandanFragment() {
@@ -57,13 +59,13 @@ public class JiandanFragment extends Fragment implements JiandanContract.View{
         refreshLayout.setOnRefreshListener(new SwipeRefreshLayout.OnRefreshListener() {
             @Override
             public void onRefresh() {
-                presenter.loadArticle(true);
+                presenter.requestArticles(true);
                 adapter.notifyDataSetChanged();
-                loaded();
+                stopLoading();
             }
         });
 
-        rvArticles.setOnScrollListener(new RecyclerView.OnScrollListener() {
+        recyclerView.setOnScrollListener(new RecyclerView.OnScrollListener() {
 
             boolean isSlidingToLast = false;
 
@@ -97,11 +99,11 @@ public class JiandanFragment extends Fragment implements JiandanContract.View{
     }
 
     @Override
-    public void showArticle(ArrayList<JiandanArticle> articleList) {
+    public void showResult(ArrayList<Jiandan.Comment> articleList) {
 
         if (adapter == null){
             adapter = new JiandanArticleAdapter(getActivity(), articleList);
-            rvArticles.setAdapter(adapter);
+            recyclerView.setAdapter(adapter);
         } else {
             adapter.notifyDataSetChanged();
         }
@@ -124,7 +126,7 @@ public class JiandanFragment extends Fragment implements JiandanContract.View{
     }
 
     @Override
-    public void loading() {
+    public void startLoading() {
         refreshLayout.post(new Runnable() {
             @Override
             public void run() {
@@ -134,7 +136,7 @@ public class JiandanFragment extends Fragment implements JiandanContract.View{
     }
 
     @Override
-    public void loaded() {
+    public void stopLoading() {
         if (refreshLayout.isRefreshing()){
             refreshLayout.post(new Runnable() {
                 @Override
@@ -147,14 +149,25 @@ public class JiandanFragment extends Fragment implements JiandanContract.View{
 
     @Override
     public void initViews(View view) {
-        rvArticles = (RecyclerView) view.findViewById(R.id.qsbk_rv);
-        rvArticles.setLayoutManager(new LinearLayoutManager(getActivity()));
+        recyclerView = (RecyclerView) view.findViewById(R.id.qsbk_rv);
+        recyclerView.setLayoutManager(new LinearLayoutManager(getActivity()));
         refreshLayout = (SwipeRefreshLayout) view.findViewById(R.id.refresh);
     }
 
     @Override
+    public void showLoadError() {
+        Snackbar.make(recyclerView, "加载失败", Snackbar.LENGTH_SHORT)
+                .setAction("重试", new View.OnClickListener() {
+                    @Override
+                    public void onClick(View view) {
+                        presenter.requestArticles(true);
+                    }
+                }).show();
+    }
+
+    @Override
     public void setPresenter(JiandanContract.Presenter presenter) {
-        presenter.loadArticle(false);
+        presenter.requestArticles(false);
     }
 
     @Override

@@ -19,8 +19,8 @@ import org.json.JSONObject;
 import java.util.ArrayList;
 
 import io.github.marktony.reader.app.VolleySingleton;
+import io.github.marktony.reader.data.OnStringListener;
 import io.github.marktony.reader.data.QsbkArticle;
-import io.github.marktony.reader.model.JokeDataRequest;
 
 import static android.content.Context.CLIPBOARD_SERVICE;
 
@@ -28,7 +28,7 @@ import static android.content.Context.CLIPBOARD_SERVICE;
  * Created by Lizhaotailang on 2016/8/4.
  */
 
-public class QsbkPresenter implements QsbkContract.Presenter,JokeDataRequest {
+public class QsbkPresenter implements QsbkContract.Presenter, OnStringListener {
 
     private QsbkContract.View view;
     private Context context;
@@ -45,7 +45,7 @@ public class QsbkPresenter implements QsbkContract.Presenter,JokeDataRequest {
         if (forceRefresh){
             list.clear();
         }
-        getData(0);
+        // getData(0);
     }
 
     @Override
@@ -90,7 +90,7 @@ public class QsbkPresenter implements QsbkContract.Presenter,JokeDataRequest {
         }
     }
 
-    @Override
+    /*@Override
     public void getData(int offset) {
         JsonObjectRequest request = new JsonObjectRequest(Request.Method.GET, "http://m2.qiushibaike.com/article/list/text", new Response.Listener<JSONObject>() {
             @Override
@@ -132,6 +132,15 @@ public class QsbkPresenter implements QsbkContract.Presenter,JokeDataRequest {
 
         request.setTag("QSBK");
         VolleySingleton.getVolleySingleton(context).addToRequestQueue(request);
+    }*/
+
+    @Override
+    public void onSuccess(String result) {
+
     }
 
+    @Override
+    public void onError(VolleyError error) {
+
+    }
 }

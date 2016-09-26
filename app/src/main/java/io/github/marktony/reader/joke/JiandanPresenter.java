@@ -7,19 +7,15 @@ import android.content.Context;
 import android.content.Intent;
 import android.widget.Toast;
 
-import com.android.volley.Request;
-import com.android.volley.Response;
 import com.android.volley.VolleyError;
-import com.android.volley.toolbox.JsonObjectRequest;
-
-import org.json.JSONArray;
-import org.json.JSONException;
-import org.json.JSONObject;
+import com.google.gson.Gson;
 
 import java.util.ArrayList;
 
 import io.github.marktony.reader.app.VolleySingleton;
-import io.github.marktony.reader.data.JiandanArticle;
+import io.github.marktony.reader.data.Jiandan;
+import io.github.marktony.reader.data.OnStringListener;
+import io.github.marktony.reader.data.StringModelImpl;
 
 import static android.content.Context.CLIPBOARD_SERVICE;
 
@@ -27,33 +23,31 @@ import static android.content.Context.CLIPBOARD_SERVICE;
  * Created by Lizhaotailang on 2016/8/5.
  */
 
-public class JiandanPresenter implements JiandanContract.Presenter {
+public class JiandanPresenter implements JiandanContract.Presenter, OnStringListener {
 
     private JiandanContract.View view;
-    private ArrayList<JiandanArticle> jiandanArticles = new ArrayList<>();
+    private ArrayList<Jiandan.Comment> jiandanArticles = new ArrayList<>();
     private Context context;
+    private StringModelImpl model;
 
     public JiandanPresenter(Context context, JiandanContract.View view){
         this.view = view;
         this.context = context;
+        model = new StringModelImpl(context);
     }
 
-    public void loadArticle(Boolean forceRefresh) {
-        view.loading();
+    public void requestArticles(Boolean forceRefresh) {
+        view.startLoading();
         if (forceRefresh){
             jiandanArticles.clear();
         }
-        getData((jiandanArticles.size() / 25) + 1);
+        model.load("http://jandan.net/?oxwlxojflwblxbsapi=jandan.get_duan_comments&page=" + ((jiandanArticles.size() / 25) + 1), this);
+
     }
 
     @Override
     public void loadMore() {
-        getData((jiandanArticles.size() / 25) + 1);
-    }
-
-    @Override
-    public void loadDone() {
-        view.loaded();
+        model.load("http://jandan.net/?oxwlxojflwblxbsapi=jandan.get_duan_comments&page=" + ((jiandanArticles.size() / 25) + 1), this);
     }
 
     @Override
@@ -88,43 +82,20 @@ public class JiandanPresenter implements JiandanContract.Presenter {
         }
     }
 
-    public void getData(int offset) {
-        JsonObjectRequest request = new JsonObjectRequest(Request.Method.GET,
-                "http://jandan.net/?oxwlxojflwblxbsapi=jandan.get_duan_comments&page=?oxwlxojflwblxbsapi=jandan.get_duan_comments&page=" + offset,
-                new Response.Listener<JSONObject>() {
-                    @Override
-                    public void onResponse(JSONObject jsonObject) {
+    @Override
+    public void onSuccess(String result) {
+        Gson gson = new Gson();
+        Jiandan jiandan = gson.fromJson(result, Jiandan.class);
+        for (Jiandan.Comment item : jiandan.getComments()) {
+            jiandanArticles.add(item);
+        }
+        view.showResult(jiandanArticles);
+        view.stopLoading();
+    }
 
-                        try {
-                            if (jsonObject.getString("status").equals("ok")){
-                                JSONArray array = jsonObject.getJSONArray("comments");
-                                for (int i = 0; i < array.length(); i++){
-                                    JSONObject object = array.getJSONObject(i);
-                                    jiandanArticles.add(new JiandanArticle(
-                                            object.getString("comment_author"),
-                                            object.getString("comment_date"),
-                                            object.getString("comment_content")
-                                    ));
-                                }
-                            }
-
-                            view.showArticle(jiandanArticles);
-
-                            loadDone();
-
-                        } catch (JSONException e) {
-                            e.printStackTrace();
-                        }
-                    }
-                }, new Response.ErrorListener() {
-            @Override
-            public void onErrorResponse(VolleyError volleyError) {
-
-            }
-        });
-
-        request.setTag("JD");
-        VolleySingleton.getVolleySingleton(context).addToRequestQueue(request);
+    @Override
+    public void onError(VolleyError error) {
+        view.showLoadError();
     }
 
 }

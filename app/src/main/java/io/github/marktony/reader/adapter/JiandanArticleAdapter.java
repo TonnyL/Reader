@@ -11,7 +11,7 @@ import java.util.ArrayList;
 import java.util.List;
 
 import io.github.marktony.reader.R;
-import io.github.marktony.reader.data.JiandanArticle;
+import io.github.marktony.reader.data.Jiandan;
 import io.github.marktony.reader.interfaze.OnRecyclerViewClickListener;
 import io.github.marktony.reader.interfaze.OnRecyclerViewLongClickListener;
 
@@ -23,12 +23,12 @@ public class JiandanArticleAdapter extends RecyclerView.Adapter<JiandanArticleAd
 
     private final Context context;
     private LayoutInflater inflater;
-    private final List<JiandanArticle> list;
+    private final List<Jiandan.Comment> list;
 
     private OnRecyclerViewClickListener listener;
     private OnRecyclerViewLongClickListener longClickListener;
 
-    public JiandanArticleAdapter(Context context, ArrayList<JiandanArticle> list) {
+    public JiandanArticleAdapter(Context context, ArrayList<Jiandan.Comment> list) {
         this.context = context;
         this.list = list;
         this.inflater = LayoutInflater.from(context);
@@ -41,7 +41,7 @@ public class JiandanArticleAdapter extends RecyclerView.Adapter<JiandanArticleAd
 
     @Override
     public void onBindViewHolder(JiandanViewHolder holder, int position) {
-        JiandanArticle article = list.get(position);
+        Jiandan.Comment article = list.get(position);
         holder.tvAuthor.setText(article.getComment_author());
         holder.tvTime.setText(article.getComment_date());
         holder.tvContent.setText(article.getComment_content());
