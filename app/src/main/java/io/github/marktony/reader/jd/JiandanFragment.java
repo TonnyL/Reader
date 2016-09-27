@@ -1,4 +1,4 @@
-package io.github.marktony.reader.joke;
+package io.github.marktony.reader.jd;
 
 import android.os.Bundle;
 import android.support.annotation.Nullable;
@@ -14,55 +14,53 @@ import android.view.ViewGroup;
 import java.util.ArrayList;
 
 import io.github.marktony.reader.R;
-import io.github.marktony.reader.adapter.QsbkArticleAdapter;
-import io.github.marktony.reader.data.Qiushibaike;
+import io.github.marktony.reader.adapter.JiandanArticleAdapter;
+import io.github.marktony.reader.data.Jiandan;
 import io.github.marktony.reader.interfaze.OnRecyclerViewClickListener;
 import io.github.marktony.reader.interfaze.OnRecyclerViewLongClickListener;
 
+
 /**
- * Created by Lizhaotailang on 2016/8/4.
+ * Created by Lizhaotailang on 2016/8/5.
  */
 
-public class QsbkFragment extends Fragment
-        implements QsbkContract.View {
+public class JiandanFragment extends Fragment
+        implements JiandanContract.View{
 
-    private QsbkContract.Presenter presenter;
-    private QsbkArticleAdapter adapter;
+    private JiandanContract.Presenter presenter;
+    private JiandanArticleAdapter adapter;
     private RecyclerView recyclerView;
     private SwipeRefreshLayout refreshLayout;
 
-    public QsbkFragment() {
-        // requires empty constructor
+    public JiandanFragment() {
+
     }
 
-    public static QsbkFragment newInstance(int page) {
-        return new QsbkFragment();
+    public static JiandanFragment newInstance(int page) {
+        return new JiandanFragment();
     }
 
     @Override
     public void onCreate(@Nullable Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
-        presenter = new QsbkPresenter(getActivity(), this);
     }
 
     @Nullable
     @Override
     public View onCreateView(LayoutInflater inflater, @Nullable ViewGroup container, @Nullable Bundle savedInstanceState) {
 
-        View view = inflater.inflate(R.layout.joke_list_fragment, container, false);
+        View view = inflater.inflate(R.layout.joke_list_fragment,container,false);
 
         initViews(view);
 
-        setPresenter(presenter);
+        presenter.requestArticles(true);
 
         refreshLayout.setOnRefreshListener(new SwipeRefreshLayout.OnRefreshListener() {
             @Override
             public void onRefresh() {
-                presenter.loadArticle(true);
+                presenter.requestArticles(true);
                 adapter.notifyDataSetChanged();
-                if (refreshLayout.isRefreshing()){
-                    refreshLayout.setRefreshing(false);
-                }
+                stopLoading();
             }
         });
 
@@ -100,38 +98,30 @@ public class QsbkFragment extends Fragment
     }
 
     @Override
-    public void setPresenter(QsbkContract.Presenter presenter) {
-        presenter.loadArticle(false);
-    }
+    public void showResult(ArrayList<Jiandan.Comment> articleList) {
 
-    @Override
-    public void initViews(View view) {
-        recyclerView = (RecyclerView) view.findViewById(R.id.qsbk_rv);
-        recyclerView.setLayoutManager(new LinearLayoutManager(getActivity()));
-        refreshLayout = (SwipeRefreshLayout) view.findViewById(R.id.refresh);
-    }
-
-    @Override
-    public void showResult(ArrayList<Qiushibaike.Item> articleList) {
-        if (adapter == null) {
-            adapter = new QsbkArticleAdapter(getActivity(), articleList);
+        if (adapter == null){
+            adapter = new JiandanArticleAdapter(getActivity(), articleList);
             recyclerView.setAdapter(adapter);
         } else {
             adapter.notifyDataSetChanged();
         }
-        adapter.setOnItemClickListener(new OnRecyclerViewClickListener() {
+
+        adapter.setItemClickListener(new OnRecyclerViewClickListener() {
             @Override
             public void OnClick(View v, int position) {
                 presenter.shareTo(position);
             }
+
         });
 
-        adapter.setOnItemLongClickListener(new OnRecyclerViewLongClickListener() {
+        adapter.setItemLongClickListener(new OnRecyclerViewLongClickListener() {
             @Override
             public void OnLongClick(View view, int position) {
-               presenter.copyToClipboard(position);
+                presenter.copyToClipboard(position);
             }
         });
+
     }
 
     @Override
@@ -146,12 +136,21 @@ public class QsbkFragment extends Fragment
 
     @Override
     public void stopLoading() {
-        refreshLayout.post(new Runnable() {
-            @Override
-            public void run() {
-                refreshLayout.setRefreshing(false);
-            }
-        });
+        if (refreshLayout.isRefreshing()){
+            refreshLayout.post(new Runnable() {
+                @Override
+                public void run() {
+                    refreshLayout.setRefreshing(false);
+                }
+            });
+        }
+    }
+
+    @Override
+    public void initViews(View view) {
+        recyclerView = (RecyclerView) view.findViewById(R.id.qsbk_rv);
+        recyclerView.setLayoutManager(new LinearLayoutManager(getActivity()));
+        refreshLayout = (SwipeRefreshLayout) view.findViewById(R.id.refresh);
     }
 
     @Override
@@ -160,21 +159,22 @@ public class QsbkFragment extends Fragment
                 .setAction("重试", new View.OnClickListener() {
                     @Override
                     public void onClick(View view) {
-                        presenter.loadArticle(false);
+                        presenter.requestArticles(false);
                     }
                 }).show();
+    }
+
+    @Override
+    public void setPresenter(JiandanContract.Presenter presenter) {
+        if (presenter != null) {
+            this.presenter = presenter;
+        }
     }
 
     @Override
     public void onResume() {
         super.onResume();
         presenter.start();
-    }
-
-    @Override
-    public void onStop() {
-        super.onStop();
-        presenter.finish();
     }
 
 }

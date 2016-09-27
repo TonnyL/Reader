@@ -1,4 +1,4 @@
-package io.github.marktony.reader.joke;
+package io.github.marktony.reader.home;
 
 import android.os.Bundle;
 import android.support.annotation.Nullable;
@@ -34,7 +34,7 @@ public class JokePageFragment extends Fragment {
         View view = inflater.inflate(R.layout.fragment_main, container, false);
         ViewPager viewPager = (ViewPager) view.findViewById(R.id.view_pager);
         viewPager.setOffscreenPageLimit(3);
-        viewPager.setAdapter(new JokeFragmentPagerAdapter(getChildFragmentManager()));
+        viewPager.setAdapter(new JokeFragmentPagerAdapter(getChildFragmentManager(), getContext()));
         TabLayout tabLayout = (TabLayout) view.findViewById(R.id.tab);
         tabLayout.setupWithViewPager(viewPager);
 

@@ -1,7 +1,8 @@
-package io.github.marktony.reader.joke;
+package io.github.marktony.reader.nhdz;
 
 import android.os.Bundle;
 import android.support.annotation.Nullable;
+import android.support.design.widget.Snackbar;
 import android.support.v4.app.Fragment;
 import android.support.v4.widget.SwipeRefreshLayout;
 import android.support.v7.widget.LinearLayoutManager;
@@ -14,7 +15,7 @@ import java.util.ArrayList;
 
 import io.github.marktony.reader.R;
 import io.github.marktony.reader.adapter.NhdzArticleAdapter;
-import io.github.marktony.reader.data.NhdzArticle;
+import io.github.marktony.reader.data.Neihanduanzi;
 import io.github.marktony.reader.interfaze.OnRecyclerViewClickListener;
 import io.github.marktony.reader.interfaze.OnRecyclerViewLongClickListener;
 
@@ -22,11 +23,12 @@ import io.github.marktony.reader.interfaze.OnRecyclerViewLongClickListener;
  * Created by Lizhaotailang on 2016/8/5.
  */
 
-public class NhdzFragment extends Fragment implements NhdzContract.View {
+public class NhdzFragment extends Fragment
+        implements NhdzContract.View {
 
     private NhdzContract.Presenter presenter;
     private NhdzArticleAdapter adapter;
-    private RecyclerView rvArticles;
+    private RecyclerView recyclerView;
     private SwipeRefreshLayout refreshLayout;
 
     public NhdzFragment(){
@@ -40,7 +42,6 @@ public class NhdzFragment extends Fragment implements NhdzContract.View {
     @Override
     public void onCreate(@Nullable Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
-        presenter = new NhdzPresenter(getActivity(), this);
     }
 
     @Nullable
@@ -50,18 +51,18 @@ public class NhdzFragment extends Fragment implements NhdzContract.View {
 
         initViews(view);
 
-        setPresenter(presenter);
+        presenter.loadArticle(true);
 
         refreshLayout.setOnRefreshListener(new SwipeRefreshLayout.OnRefreshListener() {
             @Override
             public void onRefresh() {
                 presenter.loadArticle(true);
                 adapter.notifyDataSetChanged();
-                loaded();
+                stopLoading();
             }
         });
 
-        rvArticles.setOnScrollListener(new RecyclerView.OnScrollListener() {
+        recyclerView.setOnScrollListener(new RecyclerView.OnScrollListener() {
 
             boolean isSlidingToLast = false;
 
@@ -95,10 +96,10 @@ public class NhdzFragment extends Fragment implements NhdzContract.View {
     }
 
     @Override
-    public void showArticle(ArrayList<NhdzArticle> articleList) {
+    public void showResult(ArrayList<Neihanduanzi.Data> list) {
         if (adapter == null){
-            adapter = new NhdzArticleAdapter(getActivity(), articleList);
-            rvArticles.setAdapter(adapter);
+            adapter = new NhdzArticleAdapter(getActivity(), list);
+            recyclerView.setAdapter(adapter);
         } else {
             adapter.notifyDataSetChanged();
         }
@@ -116,11 +117,10 @@ public class NhdzFragment extends Fragment implements NhdzContract.View {
                 presenter.copyToClipboard(position);
             }
         });
-
     }
 
     @Override
-    public void loading() {
+    public void startLoading() {
         refreshLayout.post(new Runnable() {
             @Override
             public void run() {
@@ -130,26 +130,38 @@ public class NhdzFragment extends Fragment implements NhdzContract.View {
     }
 
     @Override
-    public void loaded() {
-        if (refreshLayout.isRefreshing()){
-            refreshLayout.post(new Runnable() {
-                @Override
-                public void run() {
-                    refreshLayout.setRefreshing(false);
-                }
-            });
-        }
+    public void stopLoading() {
+        refreshLayout.post(new Runnable() {
+            @Override
+            public void run() {
+                refreshLayout.setRefreshing(false);
+            }
+        });
+    }
+
+    @Override
+    public void showLoadError() {
+        Snackbar.make(recyclerView, "加载失败", Snackbar.LENGTH_SHORT)
+                .setAction("重试", new View.OnClickListener() {
+                    @Override
+                    public void onClick(View view) {
+                        presenter.loadArticle(false);
+                    }
+                })
+                .show();
     }
 
     @Override
     public void setPresenter(NhdzContract.Presenter presenter) {
-        presenter.loadArticle(false);
+        if (presenter != null) {
+            this.presenter = presenter;
+        }
     }
 
     @Override
     public void initViews(View view) {
-        rvArticles = (RecyclerView) view.findViewById(R.id.qsbk_rv);
-        rvArticles.setLayoutManager(new LinearLayoutManager(getActivity()));
+        recyclerView = (RecyclerView) view.findViewById(R.id.qsbk_rv);
+        recyclerView.setLayoutManager(new LinearLayoutManager(getActivity()));
         refreshLayout = (SwipeRefreshLayout) view.findViewById(R.id.refresh);
     }
 
@@ -159,9 +171,4 @@ public class NhdzFragment extends Fragment implements NhdzContract.View {
         presenter.start();
     }
 
-    @Override
-    public void onStop() {
-        super.onStop();
-        presenter.finish();
-    }
 }

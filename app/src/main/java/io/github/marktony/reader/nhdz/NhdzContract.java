@@ -1,10 +1,10 @@
-package io.github.marktony.reader.joke;
+package io.github.marktony.reader.nhdz;
 
 import java.util.ArrayList;
 
 import io.github.marktony.reader.BasePresenter;
 import io.github.marktony.reader.BaseView;
-import io.github.marktony.reader.data.NhdzArticle;
+import io.github.marktony.reader.data.Neihanduanzi;
 
 /**
  * Created by Lizhaotailang on 2016/8/5.
@@ -14,11 +14,13 @@ public interface NhdzContract {
 
     interface View extends BaseView<NhdzContract.Presenter> {
 
-        void showArticle(ArrayList<NhdzArticle> articleList);
+        void showResult(ArrayList<Neihanduanzi.Data> list);
 
-        void loading();
+        void startLoading();
 
-        void loaded();
+        void stopLoading();
+
+        void showLoadError();
 
     }
 
@@ -27,8 +29,6 @@ public interface NhdzContract {
         void loadArticle(Boolean forceRefresh);
 
         void loadMore();
-
-        void loadDone();
 
         void shareTo(int position);
 

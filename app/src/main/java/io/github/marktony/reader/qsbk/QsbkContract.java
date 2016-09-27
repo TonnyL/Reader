@@ -1,26 +1,24 @@
-package io.github.marktony.reader.joke;
+package io.github.marktony.reader.qsbk;
 
 import java.util.ArrayList;
 
 import io.github.marktony.reader.BasePresenter;
 import io.github.marktony.reader.BaseView;
-import io.github.marktony.reader.data.Jiandan;
+import io.github.marktony.reader.data.Qiushibaike;
 
 /**
- * Created by Lizhaotailang on 2016/8/5.
+ * Created by Lizhaotailang on 2016/8/4.
  */
 
-public interface JiandanContract {
+public interface QsbkContract {
 
     interface View extends BaseView<Presenter> {
 
-        void showResult(ArrayList<Jiandan.Comment> articleList);
+        void showResult(ArrayList<Qiushibaike.Item> articleList);
 
         void startLoading();
 
         void stopLoading();
-
-        void initViews(android.view.View view);
 
         void showLoadError();
 
@@ -28,7 +26,7 @@ public interface JiandanContract {
 
     interface Presenter extends BasePresenter {
 
-        void requestArticles(Boolean forceRefresh);
+        void loadArticle(Boolean forceRefresh);
 
         void loadMore();
 

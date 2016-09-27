@@ -12,7 +12,7 @@ import java.util.Date;
 import java.util.List;
 
 import io.github.marktony.reader.R;
-import io.github.marktony.reader.data.NhdzArticle;
+import io.github.marktony.reader.data.Neihanduanzi;
 import io.github.marktony.reader.interfaze.OnRecyclerViewClickListener;
 import io.github.marktony.reader.interfaze.OnRecyclerViewLongClickListener;
 import io.github.marktony.reader.util.DateTimeHelper;
@@ -25,12 +25,12 @@ public class NhdzArticleAdapter extends RecyclerView.Adapter<NhdzArticleAdapter.
 
     private final Context context;
     private LayoutInflater inflater;
-    private final List<NhdzArticle> list;
+    private final List<Neihanduanzi.Data> list;
 
     private OnRecyclerViewClickListener listener;
     private OnRecyclerViewLongClickListener longClickListener;
 
-    public NhdzArticleAdapter(Context context, ArrayList<NhdzArticle> list) {
+    public NhdzArticleAdapter(Context context, ArrayList<Neihanduanzi.Data> list) {
         this.context = context;
         this.inflater = LayoutInflater.from(context);
         this.list = list;
@@ -43,10 +43,14 @@ public class NhdzArticleAdapter extends RecyclerView.Adapter<NhdzArticleAdapter.
 
     @Override
     public void onBindViewHolder(NhdzArticleAdapter.NhdzViewHolder holder, int position) {
-        NhdzArticle article = list.get(position);
-        holder.tvAuthor.setText(article.getUser_name());
-        holder.tvTime.setText(DateTimeHelper.getInterval(new Date(article.getDisplay_time() * 1000)));
-        holder.tvContent.setText(article.getContent());
+        Neihanduanzi.Data article = list.get(position);
+        if(article.getGroup().getUser() == null) {
+            holder.tvAuthor.setText("匿名用户");
+        } else {
+            holder.tvAuthor.setText(article.getGroup().getUser().getName());
+        }
+        holder.tvTime.setText(DateTimeHelper.getInterval(new Date((long) article.getDisplay_time() * 1000)));
+        holder.tvContent.setText(article.getGroup().getText());
     }
 
     @Override

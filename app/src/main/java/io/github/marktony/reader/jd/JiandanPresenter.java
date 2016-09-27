@@ -1,4 +1,4 @@
-package io.github.marktony.reader.joke;
+package io.github.marktony.reader.jd;
 
 import android.content.ActivityNotFoundException;
 import android.content.ClipData;
@@ -32,6 +32,7 @@ public class JiandanPresenter implements JiandanContract.Presenter, OnStringList
     public JiandanPresenter(Context context, JiandanContract.View view){
         this.view = view;
         this.context = context;
+        this.view.setPresenter(this);
         model = new StringModelImpl(context);
     }
 
@@ -71,11 +72,6 @@ public class JiandanPresenter implements JiandanContract.Presenter, OnStringList
 
     @Override
     public void start() {
-
-    }
-
-    @Override
-    public void finish() {
 
     }
 
